@@ -1,0 +1,27 @@
+# Python caches
+__pycache__/
+*.pyc
+
+# Virtual environments
+.env/
+.venv/
+venv/
+env/
+*.conda
+
+# VSCode and IDE settings
+.vscode/
+.idea/
+
+# Node / web build artifacts (if ever added)
+node_modules/
+dist/
+build/
+
+# Datasets (DO NOT upload external speech emotion datasets)
+emotion-model-training/synthetic_data/
+emotion-model-training/real_emotion_dataset/
+emotion-model-training/data/
+emotion-model-training/*.wav
+real_emotion_dataset/
+

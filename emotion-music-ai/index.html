@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotion → Music AI</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <h1>Emotion → Music AI</h1>
+      <p>Speak for a couple of seconds. AI detects your emotion and suggests a matching music mood.</p>
+    </header>
+
+    <main class="app-main">
+      <section class="card recorder-card">
+        <h2>1. Record your voice</h2>
+        <p class="hint">Allow microphone access, then press record and speak normally (about 2 seconds).</p>
+        <div class="controls">
+          <button id="recordBtn" class="btn primary">Start Recording</button>
+          <button id="stopBtn" class="btn" disabled>Stop</button>
+        </div>
+        <p id="statusText" class="status">Model loading…</p>
+        <div class="wave-placeholder" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </section>
+
+      <section class="card result-card">
+        <h2>2. Detected emotion</h2>
+        <div id="emotionResult" class="emotion-result">
+          <p class="placeholder">No recording yet. Your emotion will appear here.</p>
+        </div>
+
+        <h2 class="playlist-heading">3. Music mood suggestion</h2>
+        <div id="musicOutput" class="music-output">
+          <p class="placeholder">Record your voice to get a personalized mood playlist suggestion.</p>
+          <ul id="playlist" class="playlist"></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <small>Mini AI demo • Uses TensorFlow.js + Web Audio API • Emotion → music mood only (no audio generation).</small>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
