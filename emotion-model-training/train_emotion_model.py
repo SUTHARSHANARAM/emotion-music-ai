@@ -10,7 +10,6 @@ if not hasattr(np, "bool"):
     np.bool = bool  # type: ignore[attr-defined]
 
 import tensorflow as tf
-import librosa
 from sklearn.model_selection import train_test_split
 
 # -------------------------------------------------------------
@@ -26,7 +25,9 @@ from sklearn.model_selection import train_test_split
 #     excited/*.wav
 # For this project we can use either a synthetic dataset (synthetic_data)
 # or a real speech emotion dataset. Update DATA_DIR as needed.
-DATA_DIR = r"C:\\Users\\Sutharshanaram\\Desktop\\newprojectfun\\real_emotion_dataset"
+from scipy.io import wavfile
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), "synthetic_data")
 
 EMOTIONS = ["happy", "sad", "angry", "calm", "excited"]
 
@@ -35,8 +36,6 @@ FRAME_SIZE = 256
 HOP_SIZE = 128
 NUM_FREQ_BINS = 64
 TARGET_FRAMES = 64
-
-
 # -------------------------------------------------------------
 # AUDIO -> SPECTROGRAM (MATCHES BROWSER PIPELINE SHAPE)
 # -------------------------------------------------------------
@@ -128,7 +127,8 @@ def load_dataset():
 
             path = os.path.join(folder, fname)
             try:
-                audio, sr = librosa.load(path, sr=None, mono=True)
+                sr, audio_data = wavfile.read(path)
+                audio = audio_data.astype(np.float32) / 32767.0
             except Exception as e:
                 print(f"[WARN] Could not load {path}: {e}")
                 continue

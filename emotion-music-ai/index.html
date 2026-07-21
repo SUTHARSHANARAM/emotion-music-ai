@@ -2,54 +2,257 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emotion → Music AI</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Emotion → Music AI | Professional Studio</title>
+  <link rel="stylesheet" href="style.css?v=1.0.8" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
-<body>
-  <div class="app-shell">
-    <header class="app-header">
-      <h1>Emotion → Music AI</h1>
-      <p>Speak for a couple of seconds. AI detects your emotion and suggests a matching music mood.</p>
-    </header>
+<body class="spotify-theme">
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🎵</div>
+        <h2>Emotion AI</h2>
+      </div>
+      
+      <nav class="nav-menu">
+        <button class="nav-item active" onclick="switchTab('recorderTab')">
+          <span class="icon">🎙️</span> Studio Recorder
+        </button>
+        <button class="nav-item" onclick="switchTab('analyticsTab')">
+          <span class="icon">📊</span> Mood Analytics
+        </button>
+        <button class="nav-item" onclick="switchTab('preferencesTab')">
+          <span class="icon">⚙️</span> Music Preferences
+        </button>
+        <button class="nav-item" onclick="switchTab('pipelineTab')">
+          <span class="icon">🧠</span> AI Pipeline Map
+        </button>
+      </nav>
 
-    <main class="app-main">
-      <section class="card recorder-card">
-        <h2>1. Record your voice</h2>
-        <p class="hint">Allow microphone access, then press record and speak normally (about 2 seconds).</p>
-        <div class="controls">
-          <button id="recordBtn" class="btn primary">Start Recording</button>
-          <button id="stopBtn" class="btn" disabled>Stop</button>
-        </div>
-        <p id="statusText" class="status">Model loading…</p>
-        <div class="wave-placeholder" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-      </section>
+      <div class="sidebar-status">
+        <span class="status-dot green"></span>
+        <span id="backendStatus">AI Server Online</span>
+      </div>
+    </aside>
 
-      <section class="card result-card">
-        <h2>2. Detected emotion</h2>
-        <div id="emotionResult" class="emotion-result">
-          <p class="placeholder">No recording yet. Your emotion will appear here.</p>
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: STUDIO RECORDER & PREDICTIONS -->
+      <div id="recorderTab" class="tab-pane active">
+        <header class="top-header">
+          <div>
+            <h1>Speech Emotion Recognition Studio</h1>
+            <p>Speak naturally. Real-time Web Audio DSP & Deep Learning will analyze your vocal mood.</p>
+          </div>
+          <div class="time-badge" id="timeBadge">☀️ Morning Session</div>
+        </header>
+
+        <div class="grid-2col">
+          <!-- Left Column: Audio Recording Studio -->
+          <section class="card studio-card">
+            <div class="card-header">
+              <h2>1. Live Voice Recording</h2>
+              <span id="timerBadge" class="timer-badge">00:00 / 00:08</span>
+            </div>
+
+            <!-- Diagnostics Bar (Hidden for clean visual presentation) -->
+            <div class="diagnostics-bar" style="display: none;">
+              <div class="diag-item">
+                <span class="diag-label">Noise Floor:</span>
+                <span id="noiseLevel" class="diag-value ok">Low</span>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Volume Level:</span>
+                <span id="volumeLevel" class="diag-value">Optimal</span>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Speech Confidence:</span>
+                <span id="speechConfidence" class="diag-value ok">100%</span>
+              </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-row" style="flex-wrap: wrap; gap: 8px;">
+              <select id="micSelect" class="select-spot" style="padding: 10px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; max-width: 200px;">
+                <option value="">Default Microphone</option>
+              </select>
+              <button id="recordBtn" class="btn primary-spot" onclick="window.startRecording()">
+                <span>🎙️</span> Start Recording
+              </button>
+              <button id="stopBtn" class="btn secondary-spot" onclick="window.stopRecording()" disabled>
+                <span>⏹️</span> Stop & Analyze
+              </button>
+            </div>
+            
+            <p id="statusText" class="status-msg">Connecting to Python AI server…</p>
+
+            <!-- Live Canvas Visualizers -->
+            <div class="visualizer-container">
+              <div class="canvas-box">
+                <span class="canvas-label">Live Waveform (Oscilloscope)</span>
+                <canvas id="waveformCanvas" width="500" height="90"></canvas>
+              </div>
+
+              <div class="canvas-box">
+                <span class="canvas-label">Live Frequency Spectrogram (Waterfall)</span>
+                <canvas id="spectrogramCanvas" width="500" height="90"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right Column: Prediction Results -->
+          <section class="card results-card">
+            <div class="card-header">
+              <h2>2. Emotion Prediction</h2>
+            </div>
+
+            <div id="emotionResult" class="result-placeholder-box">
+              <p class="placeholder-text">Press <strong>Start Recording</strong> to see real-time multimodal emotion predictions.</p>
+            </div>
+
+            <!-- Multimodal Features & Explainability -->
+            <div class="explainability-box" id="explainabilityBox" style="display: none;">
+              <h3>🔍 Why This Emotion? (Vocal Explainability)</h3>
+              <ul id="explainList" class="explain-list"></ul>
+            </div>
+
+            <!-- Emotion Timeline -->
+            <div class="timeline-box" id="timelineBox" style="display: none;">
+              <h3>⏱️ Speech Emotion Timeline (Over Time)</h3>
+              <div id="timelineTrack" class="timeline-track"></div>
+            </div>
+          </section>
         </div>
 
-        <h2 class="playlist-heading">3. Music mood suggestion</h2>
-        <div id="musicOutput" class="music-output">
-          <p class="placeholder">Record your voice to get a personalized mood playlist suggestion.</p>
-          <ul id="playlist" class="playlist"></ul>
+        <!-- Recommendations Row -->
+        <section class="card music-card">
+          <div class="card-header">
+            <h2>3. Curated Playlist Recommendations</h2>
+            <div class="pref-quick-summary" id="prefSummary">Language: English • Genre: Pop</div>
+          </div>
+          <div id="musicOutput" class="music-output">
+            <p class="placeholder-text">Record your voice to receive personalized, mood-matching playlists.</p>
+            <div id="playlistGrid" class="playlist-grid"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- TAB 2: MOOD ANALYTICS DASHBOARD -->
+      <div id="analyticsTab" class="tab-pane">
+        <header class="top-header">
+          <h1>Analytics & History Dashboard</h1>
+          <p>Track your speech emotions, confidence trends, and history across sessions.</p>
+        </header>
+
+        <div class="grid-3col">
+          <div class="card stat-card">
+            <span class="stat-title">Total Recordings</span>
+            <span class="stat-num" id="statTotal">0</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Dominant Mood</span>
+            <span class="stat-num" id="statDominant">-</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Avg AI Confidence</span>
+            <span class="stat-num" id="statAvgConf">0%</span>
+          </div>
         </div>
-      </section>
+
+        <div class="grid-2col margin-top">
+          <div class="card">
+            <h2>Mood Distribution</h2>
+            <div id="chartDistribution" class="distribution-bars"></div>
+          </div>
+          <div class="card">
+            <h2>Recent Recording Logs</h2>
+            <ul id="historyList" class="history-list"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: USER PREFERENCES -->
+      <div id="preferencesTab" class="tab-pane">
+        <header class="top-header">
+          <h1>Music & Audio Preferences</h1>
+          <p>Customize your target playlist language and music genres.</p>
+        </header>
+
+        <section class="card pref-card">
+          <div class="pref-group">
+            <label for="prefLanguage">Preferred Music Language:</label>
+            <select id="prefLanguage" class="select-spot">
+              <option value="English" selected>English</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Korean">Korean (K-Pop)</option>
+              <option value="Japanese">Japanese</option>
+            </select>
+          </div>
+
+          <div class="pref-group">
+            <label for="prefGenre">Preferred Genre:</label>
+            <select id="prefGenre" class="select-spot">
+              <option value="Pop" selected>Pop & Party Hits</option>
+              <option value="Lo-Fi">Chill Lo-Fi & Beats</option>
+              <option value="Rock">Rock & Energetic</option>
+              <option value="Melody">Acoustic & Soft Melody</option>
+              <option value="Classical">Classical & Ambient</option>
+            </select>
+          </div>
+        </section>
+      </div>
+
+      <!-- TAB 4: AI PIPELINE MAP -->
+      <div id="pipelineTab" class="tab-pane">
+        <header class="top-header">
+          <h1>Multimodal AI Pipeline Map</h1>
+          <p>Complete schematic of the end-to-end Signal Processing & Deep Learning pipeline.</p>
+        </header>
+
+        <section class="card pipeline-card">
+          <div class="pipeline-flow">
+            <div class="pipe-step">
+              <div class="pipe-icon">🎤</div>
+              <h3>1. Voice Input</h3>
+              <p>16kHz Web Audio Stream</p>
+            </div>
+            <div class="pipe-arrow">➔</div>
+            <div class="pipe-step">
+              <div class="pipe-icon">⚡</div>
+              <h3>2. Radix-2 FFT</h3>
+              <p>Fast Spectrogram Extraction</p>
+            </div>
+            <div class="pipe-arrow">➔</div>
+            <div class="pipe-step">
+              <div class="pipe-icon">📊</div>
+              <h3>3. MFCC & Pitch</h3>
+              <p>13 MFCCs + ZCR + Formants</p>
+            </div>
+            <div class="pipe-arrow">➔</div>
+            <div class="pipe-step">
+              <div class="pipe-icon">🧠</div>
+              <h3>4. CNN & Acoustic Fusion</h3>
+              <p>Hybrid Prediction Engine</p>
+            </div>
+            <div class="pipe-arrow">➔</div>
+            <div class="pipe-step">
+              <div class="pipe-icon">🎵</div>
+              <h3>5. Playlist Match</h3>
+              <p>Personalized Recommendations</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
     </main>
-
-    <footer class="app-footer">
-      <small>Mini AI demo • Uses TensorFlow.js + Web Audio API • Emotion → music mood only (no audio generation).</small>
-    </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js?v=1.1.0"></script>
 </body>
 </html>

@@ -1,50 +1,69 @@
 import os
 import numpy as np
-import soundfile as sf
+from scipy.io import wavfile
 
-# Root folder where synthetic data will be created
-DATA_DIR = r"C:\Users\Sutharshanaram\Desktop\newprojectfun\emotion-model-training\synthetic_data"
-
+DATA_DIR = os.path.join(os.path.dirname(__file__), "synthetic_data")
 EMOTIONS = ["happy", "sad", "angry", "calm", "excited"]
 SAMPLE_RATE = 16000
-DURATION = 1.0  # seconds
-SAMPLES_PER_CLASS = 40
+DURATION = 2.0
+SAMPLES_PER_CLASS = 100
 
 
-def make_signal(emotion: str, idx: int) -> np.ndarray:
+def make_speech_signal(emotion: str, idx: int) -> np.ndarray:
     n = int(SAMPLE_RATE * DURATION)
     t = np.linspace(0, DURATION, n, endpoint=False)
 
-    # Base frequencies per emotion (just to create different patterns)
-    if emotion == "happy":
-        freq = 440.0  # A4
-        amp = 0.7
-    elif emotion == "sad":
-        freq = 220.0  # A3
-        amp = 0.4
-    elif emotion == "angry":
-        freq = 330.0
-        amp = 0.9
+    syllable_rate = np.random.uniform(2.5, 4.5)
+    syllables = np.maximum(0.0, np.sin(2 * np.pi * syllable_rate * t)) ** 2
+
+    if emotion == "angry":
+        f0 = 220 + 40 * np.sin(2 * np.pi * 3 * t) + np.random.uniform(-10, 10)
+        harmonics = (
+            0.8 * np.sin(2 * np.pi * f0 * t) +
+            0.6 * np.sin(2 * np.pi * 2 * f0 * t) +
+            0.4 * np.sin(2 * np.pi * 3.5 * f0 * t)
+        )
+        noise = 0.15 * np.random.randn(n)
+        amplitude = 0.85
+        signal = amplitude * (harmonics + noise) * syllables
+
+    elif emotion == "excited":
+        f0 = 260 + 80 * np.sin(2 * np.pi * 4 * t)
+        harmonics = (
+            0.7 * np.sin(2 * np.pi * f0 * t) +
+            0.5 * np.sin(2 * np.pi * 2 * f0 * t) +
+            0.3 * np.sin(2 * np.pi * 4 * f0 * t)
+        )
+        amplitude = 0.75
+        signal = amplitude * harmonics * syllables
+
+    elif emotion == "happy":
+        f0 = 200 + 50 * np.sin(2 * np.pi * 2.5 * t)
+        harmonics = (
+            0.7 * np.sin(2 * np.pi * f0 * t) +
+            0.4 * np.sin(2 * np.pi * 2 * f0 * t)
+        )
+        amplitude = 0.65
+        signal = amplitude * harmonics * syllables
+
     elif emotion == "calm":
-        freq = 261.63  # C4
-        amp = 0.3
-    else:  # excited
-        freq = 523.25  # C5
-        amp = 0.8
+        f0 = 130 + 10 * np.sin(2 * np.pi * 1.0 * t)
+        harmonics = 0.4 * np.sin(2 * np.pi * f0 * t) + 0.2 * np.sin(2 * np.pi * 2 * f0 * t)
+        amplitude = 0.35
+        smooth_env = np.sin(np.pi * t / DURATION) ** 0.5
+        signal = amplitude * harmonics * smooth_env
 
-    # Simple amplitude envelope to avoid clicks
-    envelope = np.linspace(0.1, 1.0, n)
-    base = amp * np.sin(2 * np.pi * freq * t) * envelope
+    else:  # sad
+        f0 = np.linspace(140, 110, n)
+        harmonics = 0.3 * np.sin(2 * np.pi * f0 * t)
+        amplitude = 0.25
+        smooth_env = np.sin(np.pi * t / DURATION) ** 0.8
+        signal = amplitude * harmonics * smooth_env
 
-    # Add some random noise so samples differ
-    noise_level = 0.05
-    noise = noise_level * np.random.randn(n)
-
-    signal = base + noise
-    # Normalize to avoid clipping
+    signal += 0.01 * np.random.randn(n)
     max_val = np.max(np.abs(signal)) + 1e-6
-    signal = signal / max_val
-    return signal.astype(np.float32)
+    signal = (signal / max_val * 0.9).astype(np.float32)
+    return signal
 
 
 def main():
@@ -53,15 +72,15 @@ def main():
     for emotion in EMOTIONS:
         folder = os.path.join(DATA_DIR, emotion)
         os.makedirs(folder, exist_ok=True)
-        print(f"[INFO] Generating {SAMPLES_PER_CLASS} samples for {emotion} in {folder}")
+        print(f"[INFO] Generating {SAMPLES_PER_CLASS} speech samples for {emotion} in {folder}")
 
         for i in range(SAMPLES_PER_CLASS):
-            y = make_signal(emotion, i)
+            y = make_speech_signal(emotion, i)
             fname = f"{emotion}_{i:03d}.wav"
             path = os.path.join(folder, fname)
-            sf.write(path, y, SAMPLE_RATE)
+            wavfile.write(path, SAMPLE_RATE, (y * 32767).astype(np.int16))
 
-    print("[INFO] Synthetic dataset created at:", DATA_DIR)
+    print("[INFO] Speech dataset created at:", DATA_DIR)
 
 
 if __name__ == "__main__":
