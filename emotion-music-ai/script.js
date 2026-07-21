@@ -13,7 +13,7 @@ let secondsTimerId = null;
 let recordStartTime = 0;
 
 const USE_BACKEND = true;
-const BACKEND_URL = "http://127.0.0.1:5000/predict";
+const BACKEND_URL = "https://emotion-music-backend-sakl.onrender.com/predict";
 const EMOTIONS = ["happy", "sad", "angry", "calm", "excited"];
 
 // Navigation Tab Switcher
