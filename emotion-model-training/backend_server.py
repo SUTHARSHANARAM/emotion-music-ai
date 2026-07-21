@@ -119,6 +119,15 @@ def generate_explainability(energy: float, max_amp: float, acoustics: Dict[str, 
 # PREDICTION API ENDPOINT
 # -------------------------------------------------------------
 
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({
+        "status": "online",
+        "service": "Speech Emotion SER Engine",
+        "version": "2.0"
+    })
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json(silent=True)
