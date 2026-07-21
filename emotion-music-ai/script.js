@@ -8,6 +8,15 @@ window.addEventListener('error', (e) => {
   }
 });
 
+window.addEventListener('unhandledrejection', (e) => {
+  console.error("Unhandled Promise Rejection:", e.reason);
+  const statusEl = document.getElementById("statusText");
+  if (statusEl) {
+    const errorMsg = e.reason ? (e.reason.message || e.reason) : 'Unknown Rejection';
+    statusEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ Promise Error: ${errorMsg}</span>`;
+  }
+});
+
 let audioContext = null;
 let mediaStream = null;
 let sourceNode = null;
@@ -265,64 +274,69 @@ function stopRecording() {
   setStatus("⏳ Processing spectrogram & extracting 13 MFCCs…", "");
 
   setTimeout(async () => {
-    let totalSamples = 0;
-    for (let i = 0; i < recordedPCM.length; i++) totalSamples += recordedPCM[i].length;
+    try {
+      let totalSamples = 0;
+      for (let i = 0; i < recordedPCM.length; i++) totalSamples += recordedPCM[i].length;
 
-    if (totalSamples === 0) {
-      setStatus("No audio recorded. Please try again.", "warn");
-      return;
-    }
-
-    const mergedPCM = new Float32Array(totalSamples);
-    let offset = 0;
-    for (let i = 0; i < recordedPCM.length; i++) {
-      mergedPCM.set(recordedPCM[i], offset);
-      offset += recordedPCM[i].length;
-    }
-
-    const audioBuffer = audioContext.createBuffer(1, mergedPCM.length, audioContext.sampleRate);
-    audioBuffer.getChannelData(0).set(mergedPCM);
-
-    // Calculate quality badges from actual recorded metrics
-    calculateQualityBadges(audioBuffer);
-
-    // Sequential Processing Overlay Sequence (300ms min delay per step)
-    const delay = (ms) => new Promise(res => setTimeout(res, ms));
-    
-    const overlay = document.getElementById("processingOverlay");
-    if (overlay) overlay.style.display = "flex";
-    
-    // Clear pipeline highlight except Voice
-    document.querySelectorAll(".pipe-step").forEach(el => el.classList.remove("glowing"));
-    
-    // Reset overlay progress items
-    document.querySelectorAll(".step-progress-item").forEach(el => {
-      el.className = "step-progress-item";
-      el.querySelector(".step-status").textContent = "⏳";
-    });
-
-    const runStep = async (stepId, glowId, duration) => {
-      const el = document.getElementById(stepId);
-      if (el) el.classList.add("active");
-      const glowEl = document.getElementById(glowId);
-      if (glowEl) glowEl.classList.add("glowing");
-      await delay(duration);
-      if (el) {
-        el.classList.remove("active");
-        el.classList.add("done");
-        el.querySelector(".step-status").textContent = "✅";
+      if (totalSamples === 0) {
+        setStatus("No audio recorded. Please try again.", "warn");
+        return;
       }
-    };
 
-    await runStep("stepFFT", "pipeStepFFT", 300);
-    await runStep("stepMFCC", "pipeStepMFCC", 300);
-    await runStep("stepCNN", "pipeStepCNN", 400);
-    await runStep("stepEnsemble", "pipeStepCNN", 300);
-    await runStep("stepPlaylist", "pipeStepPlaylist", 300);
+      const mergedPCM = new Float32Array(totalSamples);
+      let offset = 0;
+      for (let i = 0; i < recordedPCM.length; i++) {
+        mergedPCM.set(recordedPCM[i], offset);
+        offset += recordedPCM[i].length;
+      }
 
-    if (overlay) overlay.style.display = "none";
+      const audioBuffer = audioContext.createBuffer(1, mergedPCM.length, audioContext.sampleRate);
+      audioBuffer.getChannelData(0).set(mergedPCM);
 
-    runEmotionPipeline(audioBuffer);
+      // Calculate quality badges from actual recorded metrics
+      calculateQualityBadges(audioBuffer);
+
+      // Sequential Processing Overlay Sequence (300ms min delay per step)
+      const delay = (ms) => new Promise(res => setTimeout(res, ms));
+      
+      const overlay = document.getElementById("processingOverlay");
+      if (overlay) overlay.style.display = "flex";
+      
+      // Clear pipeline highlight except Voice
+      document.querySelectorAll(".pipe-step").forEach(el => el.classList.remove("glowing"));
+      
+      // Reset overlay progress items
+      document.querySelectorAll(".step-progress-item").forEach(el => {
+        el.className = "step-progress-item";
+        el.querySelector(".step-status").textContent = "⏳";
+      });
+
+      const runStep = async (stepId, glowId, duration) => {
+        const el = document.getElementById(stepId);
+        if (el) el.classList.add("active");
+        const glowEl = document.getElementById(glowId);
+        if (glowEl) glowEl.classList.add("glowing");
+        await delay(duration);
+        if (el) {
+          el.classList.remove("active");
+          el.classList.add("done");
+          el.querySelector(".step-status").textContent = "✅";
+        }
+      };
+
+      await runStep("stepFFT", "pipeStepFFT", 300);
+      await runStep("stepMFCC", "pipeStepMFCC", 300);
+      await runStep("stepCNN", "pipeStepCNN", 400);
+      await runStep("stepEnsemble", "pipeStepCNN", 300);
+      await runStep("stepPlaylist", "pipeStepPlaylist", 300);
+
+      if (overlay) overlay.style.display = "none";
+
+      runEmotionPipeline(audioBuffer);
+    } catch (e) {
+      console.error("Processing Error:", e);
+      setStatus(`❌ Processing Error: ${e.message || e}`, "error");
+    }
   }, 20);
 }
 
