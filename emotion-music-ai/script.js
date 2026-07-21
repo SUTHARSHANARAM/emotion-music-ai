@@ -1,5 +1,13 @@
 'use strict';
 
+window.addEventListener('error', (e) => {
+  console.error("Uncaught JS Error:", e.error);
+  const statusEl = document.getElementById("statusText");
+  if (statusEl) {
+    statusEl.innerHTML = `<span style="color: #ef4444; font-weight: bold;">❌ JS Error: ${e.message} at ${e.filename ? e.filename.split('/').pop() : 'script.js'}:${e.lineno}</span>`;
+  }
+});
+
 let audioContext = null;
 let mediaStream = null;
 let sourceNode = null;
