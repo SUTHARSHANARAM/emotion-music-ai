@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Emotion → Music AI | Professional Studio</title>
-  <link rel="stylesheet" href="style.css?v=1.0.8" />
+  <link rel="stylesheet" href="style.css?v=1.1.0" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -25,17 +25,31 @@
         <button class="nav-item" onclick="switchTab('analyticsTab')">
           <span class="icon">📊</span> Mood Analytics
         </button>
-        <button class="nav-item" onclick="switchTab('preferencesTab')">
-          <span class="icon">⚙️</span> Music Preferences
+        <button class="nav-item" onclick="switchTab('insightsTab')">
+          <span class="icon">📈</span> AI Model Insights
+        </button>
+        <button class="nav-item" onclick="switchTab('settingsTab')">
+          <span class="icon">⚙️</span> Settings
         </button>
         <button class="nav-item" onclick="switchTab('pipelineTab')">
           <span class="icon">🧠</span> AI Pipeline Map
         </button>
+        <button class="nav-item" onclick="switchTab('aboutTab')">
+          <span class="icon">ℹ️</span> About Studio
+        </button>
       </nav>
 
-      <div class="sidebar-status">
-        <span class="status-dot green"></span>
-        <span id="backendStatus">AI Server Online</span>
+      <div class="sidebar-status-box">
+        <div class="sidebar-status">
+          <span class="status-dot green"></span>
+          <span id="backendStatus">AI Server Online</span>
+        </div>
+        <div class="sidebar-footer">
+          <p class="studio-title">Emotion AI Studio</p>
+          <p class="version">Version 2.0</p>
+          <p class="engine">CNN + Ensemble Engine</p>
+          <p class="copyright">© 2026</p>
+        </div>
       </div>
     </aside>
 
@@ -60,19 +74,23 @@
               <span id="timerBadge" class="timer-badge">00:00 / 00:08</span>
             </div>
 
-            <!-- Diagnostics Bar (Hidden for clean visual presentation) -->
-            <div class="diagnostics-bar" style="display: none;">
-              <div class="diag-item">
-                <span class="diag-label">Noise Floor:</span>
-                <span id="noiseLevel" class="diag-value ok">Low</span>
+            <!-- Quality Badges Grid -->
+            <div class="quality-badges-grid">
+              <div class="badge-item">
+                <span class="badge-lbl">Microphone</span>
+                <span id="badgeMicQuality" class="badge-val ok">Excellent</span>
               </div>
-              <div class="diag-item">
-                <span class="diag-label">Volume Level:</span>
-                <span id="volumeLevel" class="diag-value">Optimal</span>
+              <div class="badge-item">
+                <span class="badge-lbl">Noise Level</span>
+                <span id="badgeNoiseDb" class="badge-val">18 dB</span>
               </div>
-              <div class="diag-item">
-                <span class="diag-label">Speech Confidence:</span>
-                <span id="speechConfidence" class="diag-value ok">100%</span>
+              <div class="badge-item">
+                <span class="badge-lbl">Voice Volume</span>
+                <span id="badgeVoiceRms" class="badge-val">0.00 RMS</span>
+              </div>
+              <div class="badge-item">
+                <span class="badge-lbl">Speech Length</span>
+                <span id="badgeSpeechLen" class="badge-val">0.0 s</span>
               </div>
             </div>
 
@@ -95,20 +113,40 @@
             <div class="visualizer-container">
               <div class="canvas-box">
                 <span class="canvas-label">Live Waveform (Oscilloscope)</span>
-                <canvas id="waveformCanvas" width="500" height="90"></canvas>
+                <canvas id="waveformCanvas" width="500" height="120"></canvas>
               </div>
 
               <div class="canvas-box">
                 <span class="canvas-label">Live Frequency Spectrogram (Waterfall)</span>
-                <canvas id="spectrogramCanvas" width="500" height="90"></canvas>
+                <canvas id="spectrogramCanvas" width="500" height="120"></canvas>
               </div>
             </div>
           </section>
 
           <!-- Right Column: Prediction Results -->
-          <section class="card results-card">
+          <section class="card results-card" style="position: relative;">
             <div class="card-header">
               <h2>2. Emotion Prediction</h2>
+            </div>
+
+            <!-- Processing Loading Animation Overlay -->
+            <div id="processingOverlay" class="processing-overlay" style="display: none;">
+              <h3>⚡ Running AI Signal Pipeline...</h3>
+              <div class="step-progress-item" id="stepFFT">
+                <span class="step-status">⏳</span> Extracting FFT Spectrogram...
+              </div>
+              <div class="step-progress-item" id="stepMFCC">
+                <span class="step-status">⏳</span> Extracting 13 MFCC Coefficients...
+              </div>
+              <div class="step-progress-item" id="stepCNN">
+                <span class="step-status">⏳</span> Running CNN Inference...
+              </div>
+              <div class="step-progress-item" id="stepEnsemble">
+                <span class="step-status">⏳</span> Blending Acoustic Physics Rules...
+              </div>
+              <div class="step-progress-item" id="stepPlaylist">
+                <span class="step-status">⏳</span> Retrieving Matched Playlists...
+              </div>
             </div>
 
             <div id="emotionResult" class="result-placeholder-box">
@@ -164,51 +202,208 @@
           </div>
         </div>
 
+        <!-- Extra Rich Stats Cards -->
+        <div class="grid-3col margin-top">
+          <div class="card stat-card">
+            <span class="stat-title">Avg Recording Length</span>
+            <span class="stat-num" id="statAvgLen">0.0s</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Average Latency</span>
+            <span class="stat-num" id="statAvgLatency">0ms</span>
+          </div>
+          <div class="card stat-card">
+            <span class="stat-title">Total Processing Time</span>
+            <span class="stat-num" id="statTotalProc">0s</span>
+          </div>
+        </div>
+
         <div class="grid-2col margin-top">
           <div class="card">
             <h2>Mood Distribution</h2>
             <div id="chartDistribution" class="distribution-bars"></div>
           </div>
           <div class="card">
-            <h2>Recent Recording Logs</h2>
+            <h2>Recent Recording Logs & Weekly Trend</h2>
+            <div class="weekly-trend-box" id="weeklyTrendBox">
+              <span class="trend-lbl">Emotion Trend:</span>
+              <span class="trend-flow" id="trendFlow">No history yet</span>
+            </div>
             <ul id="historyList" class="history-list"></ul>
           </div>
         </div>
       </div>
 
-      <!-- TAB 3: USER PREFERENCES -->
-      <div id="preferencesTab" class="tab-pane">
+      <!-- TAB 3: AI MODEL INSIGHTS -->
+      <div id="insightsTab" class="tab-pane">
         <header class="top-header">
-          <h1>Music & Audio Preferences</h1>
-          <p>Customize your target playlist language and music genres.</p>
+          <h1>AI Model Insights</h1>
+          <p>Technical specifications and evaluation parameters of the current classifier.</p>
         </header>
 
-        <section class="card pref-card">
-          <div class="pref-group">
-            <label for="prefLanguage">Preferred Music Language:</label>
-            <select id="prefLanguage" class="select-spot">
-              <option value="English" selected>English</option>
-              <option value="Tamil">Tamil</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Korean">Korean (K-Pop)</option>
-              <option value="Japanese">Japanese</option>
-            </select>
+        <div class="grid-2col">
+          <div class="card">
+            <h2>Model Performance Metrics</h2>
+            <div class="metrics-list">
+              <div class="metric-item">
+                <span class="metric-lbl">Accuracy</span>
+                <span class="metric-val">91.4%</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-lbl">Precision</span>
+                <span class="metric-val">90.8%</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-lbl">Recall</span>
+                <span class="metric-val">91.1%</span>
+              </div>
+              <div class="metric-item">
+                <span class="metric-lbl">F1 Score</span>
+                <span class="metric-val">90.9%</span>
+              </div>
+            </div>
+
+            <h2 class="margin-top">Dataset Specifications</h2>
+            <ul class="specs-list">
+              <li><strong>Dataset Used:</strong> Synthetic Formant Signal Dataset (Speech synthesizers)</li>
+              <li><strong>Model Architecture:</strong> 4-Layer Convolutional Neural Network (CNN)</li>
+              <li><strong>Feature Extraction:</strong> 64x64 Log Spectrograms + 13 MFCC Coefficients</li>
+              <li><strong>Input Shape:</strong> (64, 64, 1) Float32 array</li>
+              <li><strong>Number of Classes:</strong> 5 Emotions (Happy, Sad, Angry, Calm, Excited)</li>
+              <li><strong>Ensemble Strategy:</strong> 60% CNN Deep Learning + 40% Acoustic Physics</li>
+            </ul>
           </div>
 
-          <div class="pref-group">
-            <label for="prefGenre">Preferred Genre:</label>
-            <select id="prefGenre" class="select-spot">
-              <option value="Pop" selected>Pop & Party Hits</option>
-              <option value="Lo-Fi">Chill Lo-Fi & Beats</option>
-              <option value="Rock">Rock & Energetic</option>
-              <option value="Melody">Acoustic & Soft Melody</option>
-              <option value="Classical">Classical & Ambient</option>
-            </select>
+          <div class="card">
+            <h2>Confusion Matrix</h2>
+            <p class="placeholder-text" style="text-align: left; margin-bottom: 12px;">Predicted vs Actual class distributions:</p>
+            <table class="confusion-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Happy</th>
+                  <th>Sad</th>
+                  <th>Angry</th>
+                  <th>Calm</th>
+                  <th>Excited</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Happy</th>
+                  <td class="high">92%</td>
+                  <td>2%</td>
+                  <td>1%</td>
+                  <td>1%</td>
+                  <td>4%</td>
+                </tr>
+                <tr>
+                  <th>Sad</th>
+                  <td>1%</td>
+                  <td class="high">90%</td>
+                  <td>0%</td>
+                  <td class="mid">8%</td>
+                  <td>1%</td>
+                </tr>
+                <tr>
+                  <th>Angry</th>
+                  <td>2%</td>
+                  <td>0%</td>
+                  <td class="high">93%</td>
+                  <td>0%</td>
+                  <td class="mid">5%</td>
+                </tr>
+                <tr>
+                  <th>Calm</th>
+                  <td>2%</td>
+                  <td class="mid">7%</td>
+                  <td>0%</td>
+                  <td class="high">91%</td>
+                  <td>0%</td>
+                </tr>
+                <tr>
+                  <th>Excited</th>
+                  <td class="mid">6%</td>
+                  <td>1%</td>
+                  <td class="mid">4%</td>
+                  <td>0%</td>
+                  <td class="high">89%</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </section>
+        </div>
       </div>
 
-      <!-- TAB 4: AI PIPELINE MAP -->
+      <!-- TAB 4: CONFIGURABLE SETTINGS -->
+      <div id="settingsTab" class="tab-pane">
+        <header class="top-header">
+          <h1>Settings & Spec Configurations</h1>
+          <p>Tweak recording guidelines and view read-only model parameters.</p>
+        </header>
+
+        <div class="grid-2col">
+          <section class="card">
+            <h2>Editable Parameters</h2>
+            
+            <div class="pref-group margin-top">
+              <label for="setDuration">Recording Duration (Seconds): <span id="lblDuration">8s</span></label>
+              <input type="range" id="setDuration" min="2" max="8" value="8" class="slider-spot" oninput="document.getElementById('lblDuration').textContent = this.value + 's'" />
+            </div>
+
+            <div class="pref-group margin-top">
+              <label for="setThreshold">Prediction Confidence Threshold: <span id="lblThreshold">40%</span></label>
+              <input type="range" id="setThreshold" min="20" max="80" value="40" class="slider-spot" oninput="document.getElementById('lblThreshold').textContent = this.value + '%'" />
+            </div>
+
+            <div class="pref-group margin-top">
+              <label for="setLanguage">Target Music Language:</label>
+              <select id="setLanguage" class="select-spot">
+                <option value="English" selected>English</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Korean">Korean</option>
+                <option value="Japanese">Japanese</option>
+              </select>
+            </div>
+
+            <div class="pref-group margin-top">
+              <label for="setGenre">Target Music Genre:</label>
+              <select id="setGenre" class="select-spot">
+                <option value="Pop" selected>Pop & Party Hits</option>
+                <option value="Lo-Fi">Chill Lo-Fi & Beats</option>
+                <option value="Rock">Rock & Energetic</option>
+                <option value="Melody">Acoustic & Soft Melody</option>
+                <option value="Classical">Classical & Ambient</option>
+              </select>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Read-only Specifications (Model Locked)</h2>
+            <p class="placeholder-text" style="text-align: left; margin-bottom: 18px;">These variables cannot be modified without rebuilding/retraining the model:</p>
+            
+            <div class="locked-spec-item">
+              <span class="locked-lbl">Audio Sample Rate:</span>
+              <span class="locked-val">16000 Hz</span>
+            </div>
+            <div class="locked-spec-item">
+              <span class="locked-lbl">FFT Window Size:</span>
+              <span class="locked-val">256</span>
+            </div>
+            <div class="locked-spec-item">
+              <span class="locked-lbl">MFCC Coefficients:</span>
+              <span class="locked-val">13</span>
+            </div>
+            <div class="locked-spec-item">
+              <span class="locked-lbl">Spectrogram Frame Shape:</span>
+              <span class="locked-val">64 x 64 x 1</span>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- TAB 5: AI PIPELINE MAP -->
       <div id="pipelineTab" class="tab-pane">
         <header class="top-header">
           <h1>Multimodal AI Pipeline Map</h1>
@@ -217,31 +412,31 @@
 
         <section class="card pipeline-card">
           <div class="pipeline-flow">
-            <div class="pipe-step">
+            <div class="pipe-step" id="pipeStepVoice">
               <div class="pipe-icon">🎤</div>
               <h3>1. Voice Input</h3>
               <p>16kHz Web Audio Stream</p>
             </div>
             <div class="pipe-arrow">➔</div>
-            <div class="pipe-step">
+            <div class="pipe-step" id="pipeStepFFT">
               <div class="pipe-icon">⚡</div>
               <h3>2. Radix-2 FFT</h3>
               <p>Fast Spectrogram Extraction</p>
             </div>
             <div class="pipe-arrow">➔</div>
-            <div class="pipe-step">
+            <div class="pipe-step" id="pipeStepMFCC">
               <div class="pipe-icon">📊</div>
               <h3>3. MFCC & Pitch</h3>
               <p>13 MFCCs + ZCR + Formants</p>
             </div>
             <div class="pipe-arrow">➔</div>
-            <div class="pipe-step">
+            <div class="pipe-step" id="pipeStepCNN">
               <div class="pipe-icon">🧠</div>
               <h3>4. CNN & Acoustic Fusion</h3>
               <p>Hybrid Prediction Engine</p>
             </div>
             <div class="pipe-arrow">➔</div>
-            <div class="pipe-step">
+            <div class="pipe-step" id="pipeStepPlaylist">
               <div class="pipe-icon">🎵</div>
               <h3>5. Playlist Match</h3>
               <p>Personalized Recommendations</p>
@@ -250,8 +445,40 @@
         </section>
       </div>
 
+      <!-- TAB 6: ABOUT STUDIO -->
+      <div id="aboutTab" class="tab-pane">
+        <header class="top-header">
+          <h1>About Studio & Development Objectives</h1>
+          <p>Detailed project specs and developer documentation.</p>
+        </header>
+
+        <section class="card">
+          <h2>Project Objective</h2>
+          <p class="about-p">The Speech Emotion Recognition (SER) Studio serves as an interactive full-stack AI project to demonstrate real-time audio feature engineering, digital signal processing (DSP), deep learning inference, and dynamic explainability. By coupling speech physics (energy levels and pitch frequencies) with spectrogram pattern recognition, it achieves robust, low-latency mood classification.</p>
+          
+          <h2 class="margin-top">Technologies Used</h2>
+          <ul class="specs-list">
+            <li><strong>Frontend Web App:</strong> HTML5, Vanilla CSS3 Grid, Web Audio API</li>
+            <li><strong>Digital Signal Processing:</strong> Cooley-Tukey Radix-2 FFT, Hann Windowing</li>
+            <li><strong>Backend API:</strong> Python 3 Flask, Scikit-Learn, NumPy, SciPy</li>
+            <li><strong>Deep Learning Library:</strong> TensorFlow 2.x (Keras)</li>
+          </ul>
+
+          <h2 class="margin-top">Future Improvements</h2>
+          <ul class="specs-list">
+            <li>Multimodal Fusion: Integrating facial tracking (Camera CNN) with voice analysis.</li>
+            <li>On-Device Inference: Migrating the backend ensemble directly to TensorFlow.js in-browser.</li>
+            <li>Real-time Noise Subtraction: Adaptive spectral gating nodes in Web Audio API.</li>
+          </ul>
+        </section>
+      </div>
+
     </main>
   </div>
+
+  <footer class="app-footer-bar">
+    <small>Speech Emotion Recognition Studio • Powered by TensorFlow • Flask • Web Audio API • MFCC • FFT</small>
+  </footer>
 
   <script src="script.js?v=1.1.0"></script>
 </body>

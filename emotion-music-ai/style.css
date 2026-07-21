@@ -104,7 +104,7 @@ body.spotify-theme {
 }
 
 .sidebar-status {
-  padding: 12px;
+  padding: 10px 12px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 12px;
   border: 1px solid var(--border-card);
@@ -118,7 +118,6 @@ body.spotify-theme {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-
 }
 
 .status-dot.green {
@@ -132,6 +131,7 @@ body.spotify-theme {
   padding: 32px 40px;
   overflow-y: auto;
   max-height: 100vh;
+  padding-bottom: 80px; /* Space for footer */
 }
 
 .tab-pane {
@@ -222,33 +222,6 @@ body.spotify-theme {
   border-radius: 8px;
 }
 
-.diagnostics-bar {
-  display: flex;
-  gap: 16px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 10px 14px;
-  border-radius: 12px;
-  margin-bottom: 18px;
-  font-size: 0.78rem;
-}
-
-.diag-item {
-  display: flex;
-  gap: 6px;
-}
-
-.diag-label {
-  color: var(--text-sub);
-}
-
-.diag-value {
-  font-weight: 600;
-}
-
-.diag-value.ok {
-  color: var(--spotify-green);
-}
-
 .controls-row {
   display: flex;
   gap: 12px;
@@ -327,7 +300,6 @@ body.spotify-theme {
 
 canvas {
   width: 100%;
-  height: 80px;
   display: block;
   border-radius: 8px;
 }
@@ -416,7 +388,7 @@ canvas {
   color: var(--text-sub);
 }
 
-/* Explainability List & Timeline */
+/* Explainability & Timeline */
 .explainability-box, .timeline-box {
   margin-top: 18px;
   padding-top: 14px;
@@ -481,37 +453,44 @@ canvas {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-card);
   border-radius: 14px;
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
 }
 
 .playlist-card-item:hover {
   background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(29, 185, 84, 0.15);
 }
 
 .playlist-card-item h4 {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
 
+.playlist-card-item .playlist-meta {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  margin-bottom: 12px;
 }
 
 .playlist-card-item a {
   color: var(--spotify-green);
   text-decoration: none;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .playlist-card-item a:hover {
-  text-decoration: underline;
+  color: var(--spotify-green-hover);
 }
 
 /* Stats Cards */
@@ -550,13 +529,6 @@ canvas {
 }
 
 /* Preferences Select */
-.pref-card {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 500px;
-}
-
 .pref-group {
   display: flex;
   flex-direction: column;
@@ -616,6 +588,281 @@ canvas {
 .pipe-arrow {
   font-size: 1.2rem;
   color: var(--text-sub);
+}
+
+/* Quality Badges Grid */
+.quality-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  background: rgba(0,0,0,0.3);
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-card);
+}
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.badge-lbl {
+  font-size: 0.68rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.badge-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+}
+.badge-val.ok {
+  color: var(--spotify-green);
+}
+
+/* Processing Overlay Step Progress Indicator */
+.processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 12, 0.95);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.processing-overlay h3 {
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+  color: #fff;
+}
+.step-progress-item {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  margin-bottom: 12px;
+  color: var(--text-sub);
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+.step-progress-item.active {
+  color: #fff;
+  opacity: 1;
+  font-weight: 600;
+}
+.step-progress-item.done {
+  color: var(--spotify-green);
+  opacity: 1;
+}
+.step-status {
+  font-size: 1rem;
+}
+
+/* ML Insights Table & Metrics */
+.metrics-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.metric-item {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-card);
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-lbl {
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+}
+.metric-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--spotify-green);
+}
+.specs-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+}
+.specs-list li {
+  background: rgba(255,255,255,0.02);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.confusion-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  font-size: 0.82rem;
+}
+.confusion-table th {
+  padding: 10px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--border-card);
+  color: var(--text-sub);
+}
+.confusion-table td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid var(--border-card);
+}
+.confusion-table td.high {
+  background: rgba(29, 185, 84, 0.3);
+  color: #fff;
+  font-weight: 700;
+}
+.confusion-table td.mid {
+  background: rgba(29, 185, 84, 0.1);
+  color: var(--text-sub);
+}
+
+/* Settings sliders and specifications details */
+.locked-spec-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+.locked-lbl {
+  color: var(--text-sub);
+  font-weight: 500;
+}
+.locked-val {
+  font-weight: 700;
+  color: #fff;
+}
+.slider-spot {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  outline: none;
+  margin-top: 8px;
+}
+.slider-spot::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--spotify-green);
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--spotify-green);
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-card);
+  font-size: 0.72rem;
+  color: var(--text-sub);
+  line-height: 1.4;
+}
+.sidebar-footer p {
+  margin: 0;
+}
+.sidebar-footer .studio-title {
+  font-weight: 700;
+  color: #fff;
+}
+.sidebar-footer .version {
+  color: var(--spotify-green);
+}
+.sidebar-status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+/* App Footer Bar */
+.app-footer-bar {
+  background: #040405;
+  border-top: 1px solid var(--border-card);
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  z-index: 10;
+  position: relative;
+}
+
+/* Weekly trend sparkline flow */
+.weekly-trend-box {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-card);
+  padding: 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  margin-bottom: 12px;
+}
+.trend-flow {
+  font-family: monospace;
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  color: var(--spotify-green);
+}
+
+/* About paragraph styling */
+.about-p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-sub);
+  margin-bottom: 12px;
+}
+
+/* Glowing pipeline state */
+.pipe-step.glowing {
+  border-color: var(--spotify-green);
+  box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
+  background: rgba(29, 185, 84, 0.05);
+  transform: translateY(-2px);
+}
+.pipe-step {
+  transition: all 0.3s ease;
+}
+
+/* Metadata subpanel on prediction card */
+.latency-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-card);
+  font-size: 0.78rem;
+  color: var(--text-sub);
+}
+.latency-meta-item strong {
+  color: #fff;
 }
 
 @media (max-width: 900px) {
