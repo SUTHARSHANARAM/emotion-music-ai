@@ -7,12 +7,15 @@ from flask_cors import CORS
 import tensorflow as tf
 
 # Paths
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "emotion_cnn.h5")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "emotion_cnn.tflite")
 EMOTIONS: List[str] = ["happy", "sad", "angry", "calm", "excited"]
 
-print(f"[INFO] Loading Keras CNN model from {MODEL_PATH}...")
-model = tf.keras.models.load_model(MODEL_PATH)
-print("[INFO] CNN Model loaded.")
+print(f"[INFO] Loading TFLite CNN model from {MODEL_PATH}...")
+interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+print("[INFO] TFLite CNN Model loaded and memory allocated.")
 
 app = Flask(__name__)
 CORS(app)
@@ -149,8 +152,10 @@ def predict():
     else:
         spec_norm = np.zeros_like(raw_spec)
 
-    spec_tensor = spec_norm[..., np.newaxis][np.newaxis, ...]
-    cnn_probs = model(spec_tensor, training=False).numpy()[0]
+    spec_tensor = spec_norm[..., np.newaxis][np.newaxis, ...].astype(np.float32)
+    interpreter.set_tensor(input_details[0]['index'], spec_tensor)
+    interpreter.invoke()
+    cnn_probs = interpreter.get_tensor(output_details[0]['index'])[0]
 
     # 3. Deterministic Acoustic Boosts
     energy = data.get("rms", acoustics["mean_energy"])
