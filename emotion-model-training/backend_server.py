@@ -150,7 +150,7 @@ def predict():
         spec_norm = np.zeros_like(raw_spec)
 
     spec_tensor = spec_norm[..., np.newaxis][np.newaxis, ...]
-    cnn_probs = model.predict(spec_tensor, verbose=0)[0]
+    cnn_probs = model(spec_tensor, training=False).numpy()[0]
 
     # 3. Deterministic Acoustic Boosts
     energy = data.get("rms", acoustics["mean_energy"])
