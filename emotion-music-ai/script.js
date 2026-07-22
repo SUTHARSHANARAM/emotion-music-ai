@@ -326,13 +326,17 @@ function stopRecording() {
 
       await runStep("stepFFT", "pipeStepFFT", 300);
       await runStep("stepMFCC", "pipeStepMFCC", 300);
+      
+      const pipelinePromise = runEmotionPipeline(audioBuffer);
+
       await runStep("stepCNN", "pipeStepCNN", 400);
       await runStep("stepEnsemble", "pipeStepCNN", 300);
+      
+      setStatus("⏳ Waiting for AI Server... (Render Free Tier may take 50s on first request)", "warn");
+      await pipelinePromise;
       await runStep("stepPlaylist", "pipeStepPlaylist", 300);
 
       if (overlay) overlay.style.display = "none";
-
-      runEmotionPipeline(audioBuffer);
     } catch (e) {
       console.error("Processing Error:", e);
       setStatus(`❌ Processing Error: ${e.message || e}`, "error");
